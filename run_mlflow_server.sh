@@ -1,16 +1,15 @@
-export MLFLOW_S3_ENDPOINT_URL=https://storage.yandexcloud.net
-export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-export AWS_BUCKET_NAME=$AWS_BUCKET_NAME
+#!/bin/bash
 
-export DB_DESTINATION_USER=$DB_DESTINATION_USER
-export DB_DESTINATION_PASSWORD=$DB_DESTINATION_PASSWORD
-export DB_DESTINATION_HOST=$DB_DESTINATION_HOST
-export DB_DESTINATION_PORT=$DB_DESTINATION_PORT
-export DB_DESTINATION_NAME=$DB_DESTINATION_NAME
+# Загружаем переменные из .env в окружение скрипта
+set -a
+. ./.env
+set +a
 
+export MLFLOW_SQLALCHEMYSTORE_POOL_SIZE=1
+export MLFLOW_SQLALCHEMYSTORE_MAX_OVERFLOW=1
 
 mlflow server \
   --backend-store-uri postgresql://$DB_DESTINATION_USER:$DB_DESTINATION_PASSWORD@$DB_DESTINATION_HOST:$DB_DESTINATION_PORT/$DB_DESTINATION_NAME\
-    --default-artifact-root s3://$AWS_BUCKET_NAME \
-    --no-serve-artifacts
+    --default-artifact-root s3://$S3_BUCKET_NAME \
+    --no-serve-artifacts \
+    --workers 1
